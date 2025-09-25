@@ -186,4 +186,4 @@ for _, row in df_final.iterrows():
         ).add_to(mapa)
 
 # --- Mostrar mapa en Streamlit ---
-st_data = st_folium(mapa, width=700, height=700)
+st_data = st_folium(mapa, width=700, height=500)
