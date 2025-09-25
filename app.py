@@ -145,45 +145,44 @@ with tab1:
 with tab2:
     st.markdown("### 🗺️ Mapa de hoteles en California")
     url_coordenadas = "https://raw.githubusercontent.com/0241603-cmyk/PROYECTO-FINAL/main/hotels_ca.csv"
-url_profesor = "https://raw.githubusercontent.com/0241603-cmyk/PROYECTO-FINAL/main/Prof_BBDD_BI.csv"
+    url_profesor = "https://raw.githubusercontent.com/0241603-cmyk/PROYECTO-FINAL/main/Prof_BBDD_BI.csv"
 
-df_coordenadas = pd.read_csv(url_coordenadas)
-df_profesor = pd.read_csv(url_profesor)
+    df_coordenadas = pd.read_csv(url_coordenadas)
+    df_profesor = pd.read_csv(url_profesor)
 
+    # --- Filtrar solo hoteles abiertos (si existe columna 'is_open') ---
+    if "is_open" in df_coordenadas.columns:
+        df_coordenadas = df_coordenadas[df_coordenadas["is_open"] == 1].reset_index(drop=True)
+    if "is_open" in df_profesor.columns:
+        df_profesor = df_profesor[df_profesor["is_open"] == 1].reset_index(drop=True)
 
-# --- Filtrar solo hoteles abiertos (si existe columna 'is_open') ---
-if "is_open" in df_coordenadas.columns:
-    df_coordenadas = df_coordenadas[df_coordenadas["is_open"] == 1].reset_index(drop=True)
-if "is_open" in df_profesor.columns:
-    df_profesor = df_profesor[df_profesor["is_open"] == 1].reset_index(drop=True)
+    # --- Seleccionar columnas necesarias ---
+    cols = ["name", "latitude", "longitude", "address"]
+    df_coord = df_coordenadas[cols].copy()
+    df_prof = df_profesor[cols].copy()
 
-# --- Seleccionar columnas necesarias ---
-cols = ["name", "latitude", "longitude", "address"]
-df_coord = df_coordenadas[cols].copy()
-df_prof = df_profesor[cols].copy()
+    # --- Unir datasets y eliminar duplicados ---
+    df_final = pd.concat([df_coord, df_prof], ignore_index=True)
+    df_final = df_final.drop_duplicates(subset=["name", "address"], keep="first")
 
-# --- Unir datasets y eliminar duplicados ---
-df_final = pd.concat([df_coord, df_prof], ignore_index=True)
-df_final = df_final.drop_duplicates(subset=["name", "address"], keep="first")
+    # --- Crear mapa centrado en California ---
+    mapa = folium.Map(location=[36.7783, -119.4179], zoom_start=6)
 
-# --- Crear mapa centrado en California ---
-mapa = folium.Map(location=[36.7783, -119.4179], zoom_start=6)
+    # --- Agregar marcadores ---
+    for _, row in df_final.iterrows():
+        if pd.notna(row["latitude"]) and pd.notna(row["longitude"]):
+            folium.Marker(
+                location=[row["latitude"], row["longitude"]],
+                popup=f"{row['name']}<br>{row['address']}",
+                icon=BeautifyIcon(
+                    icon="hotel",
+                    icon_shape="marker",
+                    background_color="darkblue",
+                    text_color="white",
+                    border_color="white",
+                    border_width=2
+                )
+            ).add_to(mapa)
 
-# --- Agregar marcadores ---
-for _, row in df_final.iterrows():
-    if pd.notna(row["latitude"]) and pd.notna(row["longitude"]):
-        folium.Marker(
-            location=[row["latitude"], row["longitude"]],
-            popup=f"{row['name']}<br>{row['address']}",
-            icon=BeautifyIcon(
-                icon="hotel",
-                icon_shape="marker",
-                background_color="darkblue",
-                text_color="white",
-                border_color="white",
-                border_width=2
-            )
-        ).add_to(mapa)
-
-# --- Mostrar mapa en Streamlit ---
-st_data = st_folium(mapa, width=700, height=500)
+    # --- Mostrar mapa en Streamlit ---
+    st_data = st_folium(mapa, width=700, height=500)
