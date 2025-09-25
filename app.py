@@ -66,7 +66,7 @@ st.markdown("""<style>
     </style>""", unsafe_allow_html=True)
 
 # Título principal de la aplicación
-st.title("🏨 Radiografía de un Hotel")
+st.title("🏨 Lo que Dicen de los Hoteles")
 tab1, tab2 = st.tabs(["🏨 Reviews", "🗺️ Mapa"])
 
 with tab1:
