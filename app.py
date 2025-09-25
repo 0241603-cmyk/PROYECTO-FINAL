@@ -151,8 +151,8 @@ with tab2:
     df_profesor = pd.read_csv(data_url3)
     
     # Filtrar solo hoteles abiertos
-    df_coordenadas = df_coordenadas[df_coordenadas[is_open] == 1].reset_index(drop=True)
-    df_profesor = df_profesor[df_profesor[is_open] == 1].reset_index(drop=True)
+    df_coordenadas = df_coordenadas[df_coordenadas["is_open"] == 1].reset_index(drop=True)
+    df_profesor = df_profesor[df_profesor["is_open"] == 1].reset_index(drop=True)
     
     # Crear dataframes con columnas necesarias
     df_coord = df_coordenadas[["name", "latitude", "longitude", "address"]]
