@@ -150,9 +150,6 @@ url_profesor = "https://raw.githubusercontent.com/0241603-cmyk/PROYECTO-FINAL/ma
 df_coordenadas = pd.read_csv(url_coordenadas)
 df_profesor = pd.read_csv(url_profesor)
 
-# --- Verificar columnas ---
-st.write("Columnas df_coordenadas:", df_coordenadas.columns.tolist())
-st.write("Columnas df_profesor:", df_profesor.columns.tolist())
 
 # --- Filtrar solo hoteles abiertos (si existe columna 'is_open') ---
 if "is_open" in df_coordenadas.columns:
