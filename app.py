@@ -185,4 +185,4 @@ with tab2:
             ).add_to(mapa)
 
     # --- Mostrar mapa en Streamlit ---
-    st_data = st_folium(mapa, width=700, height=500)
+    st_data = st_folium(mapa, width=700, height=700)
