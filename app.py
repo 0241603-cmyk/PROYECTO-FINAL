@@ -8,6 +8,8 @@ st.set_page_config(layout="wide")
 
 # Subir dataset
 df = pd.read_csv("https://github.com/melody-10/Proyecto_Hoteles_California/blob/main/final_database.csv?raw=true")
+df_coordenadas = pd.read_csv("https://media.githubusercontent.com/media/melody-10/Proyecto_Hoteles_California/refs/heads/main/hotels_ca.csv?raw=true")
+df_profesor = pd.read_csv("https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/refs/heads/main/BBDD_BI.csv?raw=true")
 
 # Crear estrellas
 def generate_stars(score):
@@ -61,75 +63,100 @@ st.markdown("""<style>
 
 # Título principal de la aplicación
 st.title("🏨 Radiografía de un Hotel")
+tab1, tab2 = st.tabs(["🏨 Reviews", "🗺️ Mapa"])
 
-# Filtros
-topics = df['topic_label'].unique().tolist()
-selected_topic = st.selectbox("📌 Selecciona un tópico", topics)
-hotel_options = ['Todos'] + sorted(df['name'].unique().tolist())
-selected_hotel = st.selectbox("🏩 Selecciona un hotel", hotel_options)
-n_reviews = st.slider("📊 Número máximo de reseñas a mostrar", 1, 20, 5)
-
-# Filtrado de datos
-filtered_df = df[df['topic_label'] == selected_topic]
-if selected_hotel != 'Todos':
-    filtered_df = filtered_df[filtered_df['name'] == selected_hotel]
-else:
-    filtered_df = filtered_df.drop_duplicates(subset=['name'])
-filtered_df = filtered_df.head(n_reviews)
-
-# Comprobación y Muestra de Resultados
-if filtered_df.empty:
-    st.warning("⚠️ No se encontraron reviews que coincidan con los filtros seleccionados. Por favor, intenta con otra combinación.")
-else:
-    for idx, row in filtered_df.iterrows():
-        st.markdown(f"<div class='content-box hotel-title'>🏨 {row['name']}</div>", unsafe_allow_html=True)
-
-        col1, col2, col3 = st.columns([1.8, 1.3, 2])
-
-        # Columna 1: Review
-        with col1:
-            st.markdown(f"""<div class="content-box"><p class="review-text">{row['text']}</p></div>""", unsafe_allow_html=True)
-
-        # Columna 2: Ratings
-        with col2:
-            ratings_dict = row.get("ratings_parsed", {}).copy()
-            ratings_html = '<div class="content-box">'
-            ratings_html += '<p class="ratings-title">Ratings:</p>'
-            
-            if ratings_dict:
-                overall_value = ratings_dict.pop('overall', None)
-                if overall_value is not None:
-                    emoji = emoji_map.get('overall', "⭐")
-                    stars = generate_stars(overall_value)
-                    ratings_html += f'<div class="rating-line"><span>{emoji} Overall</span> <span>{stars}</span></div>'
+with tab1:
+    # Filtros
+    topics = df['topic_label'].unique().tolist()
+    selected_topic = st.selectbox("📌 Selecciona un tópico", topics)
+    hotel_options = ['Todos'] + sorted(df['name'].unique().tolist())
+    selected_hotel = st.selectbox("🏩 Selecciona un hotel", hotel_options)
+    n_reviews = st.slider("📊 Número máximo de reseñas a mostrar", 1, 20, 5)
+    
+    # Filtrado de datos
+    filtered_df = df[df['topic_label'] == selected_topic]
+    if selected_hotel != 'Todos':
+        filtered_df = filtered_df[filtered_df['name'] == selected_hotel]
+    else:
+        filtered_df = filtered_df.drop_duplicates(subset=['name'])
+    filtered_df = filtered_df.head(n_reviews)
+    
+    # Comprobación y Muestra de Resultados
+    if filtered_df.empty:
+        st.warning("⚠️ No se encontraron reviews que coincidan con los filtros seleccionados. Por favor, intenta con otra combinación.")
+    else:
+        for idx, row in filtered_df.iterrows():
+            st.markdown(f"<div class='content-box hotel-title'>🏨 {row['name']}</div>", unsafe_allow_html=True)
+    
+            col1, col2, col3 = st.columns([1.8, 1.3, 2])
+    
+            # Columna 1: Review
+            with col1:
+                st.markdown(f"""<div class="content-box"><p class="review-text">{row['text']}</p></div>""", unsafe_allow_html=True)
+    
+            # Columna 2: Ratings
+            with col2:
+                ratings_dict = row.get("ratings_parsed", {}).copy()
+                ratings_html = '<div class="content-box">'
+                ratings_html += '<p class="ratings-title">Ratings:</p>'
                 
-                for key, value in sorted(ratings_dict.items()):
-                    emoji = emoji_map.get(key, "🔹")
-                    stars = generate_stars(value)
-                    ratings_html += f'<div class="rating-line"><span>{emoji} {key.capitalize()}</span> <span>{stars}</span></div>'
-            else:
-                ratings_html += '<p class="rating-line">No hay ratings disponibles.</p>'
-            
-            ratings_html += '</div>'
-            st.markdown(ratings_html, unsafe_allow_html=True)
-
-        # Columna 3: Gráfico Comparativo
-        with col3:
-            hotel_name = row['name']
-            current_ratings_dict = row.get("ratings_parsed", {})
-            
-            if current_ratings_dict and hotel_name in average_ratings_per_hotel.index:
-                hotel_scores = {key: float(value) for key, value in current_ratings_dict.items() if str(value).replace('.', '', 1).isdigit()}
-                
-                if hotel_scores:
-                    st.markdown('<div class="content-box" style="padding-bottom: 0; margin-bottom: 0;"><p class="ratings-title">Calificación de la Review vs. Promedio del Hotel</p></div>', unsafe_allow_html=True)
-                    comparison_df = pd.DataFrame({'Review': pd.Series(hotel_scores), 'Promedio': average_ratings_per_hotel.loc[hotel_name]}).dropna()
-                    stacked_df = pd.DataFrame(index=comparison_df.index)
-                    stacked_df['Promedio del Hotel'] = comparison_df['Promedio']
-                    stacked_df['Calificación de Reseña'] = (comparison_df['Review'] - comparison_df['Promedio']).clip(lower=0)
+                if ratings_dict:
+                    overall_value = ratings_dict.pop('overall', None)
+                    if overall_value is not None:
+                        emoji = emoji_map.get('overall', "⭐")
+                        stars = generate_stars(overall_value)
+                        ratings_html += f'<div class="rating-line"><span>{emoji} Overall</span> <span>{stars}</span></div>'
                     
-                    st.bar_chart(stacked_df, height=300)
+                    for key, value in sorted(ratings_dict.items()):
+                        emoji = emoji_map.get(key, "🔹")
+                        stars = generate_stars(value)
+                        ratings_html += f'<div class="rating-line"><span>{emoji} {key.capitalize()}</span> <span>{stars}</span></div>'
                 else:
-                    st.markdown('<div class="content-box"><p>No hay ratings numéricos para graficar.</p></div>', unsafe_allow_html=True)
-            else:
-                st.markdown('<div class="content-box"><p>No hay ratings disponibles para comparar.</p></div>', unsafe_allow_html=True)
+                    ratings_html += '<p class="rating-line">No hay ratings disponibles.</p>'
+                
+                ratings_html += '</div>'
+                st.markdown(ratings_html, unsafe_allow_html=True)
+
+            # Columna 3: Gráfico Comparativo
+            with col3:
+                hotel_name = row['name']
+                current_ratings_dict = row.get("ratings_parsed", {})
+                
+                if current_ratings_dict and hotel_name in average_ratings_per_hotel.index:
+                    hotel_scores = {key: float(value) for key, value in current_ratings_dict.items() if str(value).replace('.', '', 1).isdigit()}
+                    
+                    if hotel_scores:
+                        st.markdown('<div class="content-box" style="padding-bottom: 0; margin-bottom: 0;"><p class="ratings-title">Calificación de la Review vs. Promedio del Hotel</p></div>', unsafe_allow_html=True)
+                        comparison_df = pd.DataFrame({'Review': pd.Series(hotel_scores), 'Promedio': average_ratings_per_hotel.loc[hotel_name]}).dropna()
+                        stacked_df = pd.DataFrame(index=comparison_df.index)
+                        stacked_df['Promedio del Hotel'] = comparison_df['Promedio']
+                        stacked_df['Calificación de Reseña'] = (comparison_df['Review'] - comparison_df['Promedio']).clip(lower=0)
+                        
+                        st.bar_chart(stacked_df, height=300)
+                    else:
+                        st.markdown('<div class="content-box"><p>No hay ratings numéricos para graficar.</p></div>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<div class="content-box"><p>No hay ratings disponibles para comparar.</p></div>', unsafe_allow_html=True)
+       
+with tab2:
+    st.markdown("### 🗺️ Mapa de hoteles en California")
+    map_df = df.drop_duplicates(subset=['name'])
+    map_df['latitude'] = pd.to_numeric(map_df['latitude'], errors='coerce')
+    map_df['longitude'] = pd.to_numeric(map_df['longitude'], errors='coerce')
+    map_df = map_df.dropna(subset=['latitude', 'longitude'])
+    
+    if map_df.empty:
+        st.warning("⚠️ No hay coordenadas disponibles para mostrar en el mapa.")
+    else:
+        fig = px.scatter_mapbox(
+            map_df,
+            lat="latitude",
+            lon="longitude",
+            hover_name="name",
+            hover_data={"latitude": True, "longitude": True},
+            color="topic_label",
+            zoom=5,
+            height=600
+        )
+        fig.update_layout(mapbox_style="open-street-map")
+        st.plotly_chart(fig, use_container_width=True)
