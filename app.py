@@ -141,23 +141,4 @@ with tab1:
        
 with tab2:
     st.markdown("### 🗺️ Mapa de hoteles en California")
-    map_df = df_coordenadas.drop_duplicates(subset=['name'])  # <- usar df_coordenadas
-    map_df['latitude'] = pd.to_numeric(map_df['latitude'], errors='coerce')
-    map_df['longitude'] = pd.to_numeric(map_df['longitude'], errors='coerce')
-    map_df = map_df.dropna(subset=['latitude', 'longitude'])
     
-    if map_df.empty:
-        st.warning("⚠️ No hay coordenadas disponibles para mostrar en el mapa.")
-    else:
-        fig = px.scatter_mapbox(
-            map_df,
-            lat="latitude",
-            lon="longitude",
-            hover_name="name",
-            hover_data={"latitude": True, "longitude": True},
-            color="topic_label",
-            zoom=5,
-            height=600
-        )
-        fig.update_layout(mapbox_style="open-street-map")
-        st.plotly_chart(fig, use_container_width=True)
