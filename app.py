@@ -140,7 +140,7 @@ with tab1:
        
 with tab2:
     st.markdown("### 🗺️ Mapa de hoteles en California")
-    map_df = df.drop_duplicates(subset=['name'])
+    map_df = df_coordenadas.drop_duplicates(subset=['name'])  # <- usar df_coordenadas
     map_df['latitude'] = pd.to_numeric(map_df['latitude'], errors='coerce')
     map_df['longitude'] = pd.to_numeric(map_df['longitude'], errors='coerce')
     map_df = map_df.dropna(subset=['latitude', 'longitude'])
