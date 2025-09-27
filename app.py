@@ -11,7 +11,7 @@ from streamlit_folium import st_folium
 st.set_page_config(layout="wide")
 
 # Subir dataset
-df = pd.read_csv("df = pd.read_csv("https://github.com/0241603-cmyk/PROYECTO-FINAL/blob/main/final_database?raw=true.csv")
+df = pd.read_csv("https://github.com/0241603-cmyk/PROYECTO-FINAL/blob/main/final_database?raw=true.csv")
 df_coordenadas = pd.read_csv("https://raw.githubusercontent.com/0241603-cmyk/PROYECTO-FINAL/refs/heads/main/hotels_ca.csv")
 df_profesor = pd.read_csv("https://raw.githubusercontent.com/0241603-cmyk/PROYECTO-FINAL/refs/heads/main/Prof_BBDD_BI.csv")
 
